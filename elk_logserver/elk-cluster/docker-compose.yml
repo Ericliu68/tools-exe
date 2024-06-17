@@ -1,0 +1,128 @@
+version: '3.8'
+services:
+  elasticsearch01:
+    image: elasticsearch:8.1.2
+    container_name: elasticsearch01
+    restart: always
+    environment:
+      - node.name=elasticsearch01
+      - cluster.name=es-docker-cluster
+      - discovery.seed_hosts=elasticsearch02,elasticsearch03
+      - cluster.initial_master_nodes=elasticsearch01,elasticsearch02,elasticsearch03
+      - ES_JAVA_OPTS=${ES_JAVA_OPTS}
+      - KIBANA_CONNECT_PASSWORD=${KIBANA_PASSWORD}
+      - ELASTIC_PASSWORD=${ES_PASSWORD}
+    volumes:
+      - ${ES01_PATH}/config/elastic-certificates.p12:/usr/share/elasticsearch/config/elastic-certificates.p12
+      - ${ES01_PATH}/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+      - ${ES01_PATH}/config/kibana_reset.sh:/usr/share/elasticsearch/config/kibana_reset.sh
+      - ${ES01_PATH}/config/kibana_reset_main.sh:/usr/share/elasticsearch/config/kibana_reset_main.sh
+      - ${ES01_PATH}/data:/usr/share/elasticsearch/data
+      - ${ES01_PATH}/plugins:/usr/share/elasticsearch/plugins
+      - ${ES01_PATH}/logs:/usr/share/elasticsearch/logs
+      - ${ES01_PATH}/Shanghai:/etc/localtime
+    ports:
+      - "${ES01_PORT_1}:9200"
+      - "${ES01_PORT_2}:9300"
+    networks:
+      - elastic
+    healthcheck:
+      interval: 50s
+      retries: 5
+      test: bash -c 'sh ./config/kibana_reset_main.sh'
+
+  elasticsearch02:
+    image: elasticsearch:8.1.2
+    container_name: elasticsearch02
+    restart: always
+    environment:
+      - node.name=elasticsearch02
+      - cluster.name=es-docker-cluster
+      - discovery.seed_hosts=elasticsearch01,elasticsearch03
+      - cluster.initial_master_nodes=elasticsearch01,elasticsearch02,elasticsearch03
+      - ES_JAVA_OPTS=-Xms1g -Xmx1g
+      - ELASTIC_PASSWORD=${ES_PASSWORD}
+    volumes:
+      - ${ES02_PATH}/config/elastic-certificates.p12:/usr/share/elasticsearch/config/elastic-certificates.p12
+      - ${ES02_PATH}/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+      - ${ES02_PATH}/config/kibana_reset.sh:/usr/share/elasticsearch/config/kibana_reset.sh
+      - ${ES02_PATH}/config/kibana_reset_main.sh:/usr/share/elasticsearch/config/kibana_reset_main.sh
+      - ${ES02_PATH}/data:/usr/share/elasticsearch/data
+      - ${ES02_PATH}/plugins:/usr/share/elasticsearch/plugins
+      - ${ES02_PATH}/logs:/usr/share/elasticsearch/logs
+      - ${ES02_PATH}/Shanghai:/etc/localtime
+    ports:
+      - "${ES02_PORT_1}:9200"
+      - "${ES02_PORT_2}:9300"
+    networks:
+      - elastic
+
+  elasticsearch03:
+    image: elasticsearch:8.1.2
+    container_name: elasticsearch03
+    restart: always
+    environment:
+      - node.name=elasticsearch03
+      - cluster.name=es-docker-cluster
+      - discovery.seed_hosts=elasticsearch01,elasticsearch02
+      - cluster.initial_master_nodes=elasticsearch01,elasticsearch02,elasticsearch03
+      - ES_JAVA_OPTS=-Xms1g -Xmx1g
+      - ELASTIC_PASSWORD=${ES_PASSWORD}
+    volumes:
+      - ${ES03_PATH}/config/elastic-certificates.p12:/usr/share/elasticsearch/config/elastic-certificates.p12
+      - ${ES03_PATH}/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+      - ${ES03_PATH}/config/kibana_reset.sh:/usr/share/elasticsearch/config/kibana_reset.sh
+      - ${ES03_PATH}/config/kibana_reset_main.sh:/usr/share/elasticsearch/config/kibana_reset_main.sh
+      - ${ES03_PATH}/data:/usr/share/elasticsearch/data
+      - ${ES03_PATH}/plugins:/usr/share/elasticsearch/plugins
+      - ${ES03_PATH}/logs:/usr/share/elasticsearch/logs
+      - ${ES03_PATH}/Shanghai:/etc/localtime
+    ports:
+      - "${ES03_PORT_1}:9200"
+      - "${ES03_PORT_2}:9300"
+    networks:
+      - elastic
+
+  kibana:
+    depends_on:
+      - elasticsearch01
+    image: kibana:8.1.2
+    container_name: kibana
+    restart: always
+    ports:
+      - "${KIBANA_PORT}:5601"
+    environment:
+      ELASTICSEARCH_URL: http://elasticsearch01:9200
+      ELASTICSEARCH_HOSTS: http://elasticsearch01:9200
+      ELASTIC_PASSWORD: ${ES_PASSWORD}
+      KIBANA_PORT: ${KIBANA_PORT}
+    volumes:
+      - type: bind
+        source: ${KIBANA_PATH}/config/kibana.yml
+        target: /usr/share/kibana/config/kibana.yml
+        read_only: true
+      - ${KIBANA_PATH}/Shanghai:/etc/localtime
+    networks:
+      - elastic
+
+
+  grafana:
+    image: grafana/grafana:8.5.16
+    restart: always
+    container_name: grafana
+    depends_on:
+      - elasticsearch01
+      - elasticsearch02
+      - elasticsearch03
+    volumes:
+      - ${GRAFANA_PATH}/config/grafana.ini:/etc/grafana/grafana.ini
+    environment:
+      - GRAFANA_HTTP_PORT=${GRAFANA_HTTP_PORT}
+    ports:
+      - "${GRAFANA_HTTP_PORT}:3000"
+    networks:
+      - elastic
+
+networks:
+  elastic:
+    driver: bridge

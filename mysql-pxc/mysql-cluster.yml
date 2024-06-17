@@ -1,0 +1,110 @@
+version: '3'
+services:
+    mysql-master-1:
+        image: perconalab/percona-xtradb-cluster:5.7.38-31.59
+        container_name: mysql-master-1
+        restart: always
+        privileged: true
+        networks:
+            - pxc-cluster
+        volumes:
+            - ${PXC_PATH_1}:/var/lib/mysql
+            - ${PXC_PATH_1_LOCAL_BACKUP}:${PXC_PATH_1_BACKUP}
+        environment:
+            - CLUSTER_NAME=test-cluster
+            - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+            - XTRABACKUP_PASSWORD=${XTRABACKUP_PASSWORD}
+            - "TZ=Asia/Shanghai"
+        ports:
+            - ${PXC_PORT_1}:3306
+        healthcheck:
+            interval: 24h
+            timeout: 1h
+            start_period: 5m
+            test: bash -c 'cd ${PXC_PATH_1_BACKUP} && mkdir -p backup && shopt -s extglob && mv -f !(backup) backup && shopt -u extglob && innobackupex --user=root --password=${MYSQL_ROOT_PASSWORD} --no-timestamp ${PXC_PATH_1_BACKUP} && rm -rf ${PXC_PATH_1_BACKUP}/backup/*'
+    mysql-master-2:
+        image: perconalab/percona-xtradb-cluster:5.7.38-31.59
+        container_name: mysql-master-2
+        restart: always
+        privileged: true
+        depends_on:
+            - mysql-master-1
+        networks:
+            - pxc-cluster
+        volumes:
+            - ${PXC_PATH_2}:/var/lib/mysql
+            - ${PXC_PATH_2_LOCAL_BACKUP}:${PXC_PATH_1_BACKUP}
+        environment:
+            - CLUSTER_NAME=test-cluster
+            - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+            - XTRABACKUP_PASSWORD=${XTRABACKUP_PASSWORD}
+            - "TZ=Asia/Shanghai"
+            - CLUSTER_JOIN=mysql-master-1
+        ports:
+            - ${PXC_PORT_2}:3306
+        healthcheck:
+            interval: 24h
+            timeout: 1h
+            start_period: 5m
+            test: bash -c 'cd ${PXC_PATH_1_BACKUP} && mkdir -p backup && shopt -s extglob && mv -f !(backup) backup && shopt -u extglob && innobackupex --user=root --password=${MYSQL_ROOT_PASSWORD} --no-timestamp ${PXC_PATH_1_BACKUP} && rm -rf ${PXC_PATH_1_BACKUP}/backup/*'
+    mysql-master-3:
+        image: perconalab/percona-xtradb-cluster:5.7.38-31.59
+        container_name: mysql-master-3
+        restart: always
+        privileged: true
+        depends_on:
+            - mysql-master-1
+        networks:
+            - pxc-cluster
+        volumes:
+            - ${PXC_PATH_3}:/var/lib/mysql
+        environment:
+            - CLUSTER_NAME=test-cluster
+            - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+            - XTRABACKUP_PASSWORD=${XTRABACKUP_PASSWORD}
+            - "TZ=Asia/Shanghai"
+            - CLUSTER_JOIN=mysql-master-1
+        ports:
+            - ${PXC_PORT_3}:3306
+    mysql-master-4:
+        image: perconalab/percona-xtradb-cluster:5.7.38-31.59
+        container_name: mysql-master-4
+        restart: always
+        privileged: true
+        depends_on:
+            - mysql-master-1
+        networks:
+            - pxc-cluster
+        volumes:
+            - ${PXC_PATH_4}:/var/lib/mysql
+        environment:
+            - CLUSTER_NAME=test-cluster
+            - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+            - XTRABACKUP_PASSWORD=${XTRABACKUP_PASSWORD}
+            - "TZ=Asia/Shanghai"
+            - CLUSTER_JOIN=mysql-master-1
+        ports:
+            - ${PXC_PORT_4}:3306
+    mysql-master-5:
+        image: perconalab/percona-xtradb-cluster:5.7.38-31.59
+        container_name: mysql-master-5
+        restart: always
+        privileged: true
+        depends_on:
+            - mysql-master-1
+        networks:
+            - pxc-cluster
+        volumes:
+            - ${PXC_PATH_5}:/var/lib/mysql
+        environment:
+            - CLUSTER_NAME=test-cluster
+            - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+            - XTRABACKUP_PASSWORD=${XTRABACKUP_PASSWORD}
+            - "TZ=Asia/Shanghai"
+            - CLUSTER_JOIN=mysql-master-1
+        ports:
+            - ${PXC_PORT_5}:3306
+networks:
+    pxc-cluster:
+        driver: bridge
+

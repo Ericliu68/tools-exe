@@ -1,0 +1,182 @@
+version: "3.8"
+services:
+  redis1:
+    image: redis:6.0.8
+    container_name: redis1
+    restart: always
+    environment:
+      - TZ="Asia/Shanghai"
+    volumes:
+      - ${REDIS_PATH_1}/conf/redis-${REDIS_PORT_1}.conf:/usr/local/etc/redis/redis.conf
+      - ${REDIS_PATH_1}/data:/data
+      - ${REDIS_PATH_1}/logs:/logs
+    ports:
+      - ${REDIS_PORT_1}:${REDIS_PORT_1}
+      - 1${REDIS_PORT_1}:1${REDIS_PORT_1}
+    command: redis-server /usr/local/etc/redis/redis.conf
+
+  redis2:
+    image: redis:6.0.8
+    container_name: redis2
+    restart: always
+    environment:
+      - TZ="Asia/Shanghai"
+    volumes:
+      - ${REDIS_PATH_2}/conf/redis-${REDIS_PORT_2}.conf:/usr/local/etc/redis/redis.conf
+      - ${REDIS_PATH_2}/data:/data
+      - ${REDIS_PATH_2}/logs:/logs
+    ports:
+      - ${REDIS_PORT_2}:${REDIS_PORT_2}
+      - 1${REDIS_PORT_2}:1${REDIS_PORT_2}
+    command: redis-server /usr/local/etc/redis/redis.conf
+
+  redis3:
+    image: redis:6.0.8
+    container_name: redis3
+    restart: always
+    environment:
+      - TZ="Asia/Shanghai"
+    volumes:
+      - ${REDIS_PATH_3}/conf/redis-${REDIS_PORT_3}.conf:/usr/local/etc/redis/redis.conf
+      - ${REDIS_PATH_3}/data:/data
+      - ${REDIS_PATH_3}/logs:/logs
+    ports:
+      - ${REDIS_PORT_3}:${REDIS_PORT_3}
+      - 1${REDIS_PORT_3}:1${REDIS_PORT_3}
+    command: redis-server /usr/local/etc/redis/redis.conf
+
+  redis4:
+    image: redis:6.0.8
+    container_name: redis4
+    restart: always
+    environment:
+      - TZ="Asia/Shanghai"
+    volumes:
+      - ${REDIS_PATH_4}/conf/redis-${REDIS_PORT_4}.conf:/usr/local/etc/redis/redis.conf
+      - ${REDIS_PATH_4}/data:/data
+      - ${REDIS_PATH_4}/logs:/logs
+    ports:
+      - ${REDIS_PORT_4}:${REDIS_PORT_4}
+      - 1${REDIS_PORT_4}:1${REDIS_PORT_4}
+    command: redis-server /usr/local/etc/redis/redis.conf
+
+  redis5:
+    image: redis:6.0.8
+    container_name: redis5
+    restart: always
+    environment:
+      - TZ="Asia/Shanghai"
+    volumes:
+      - ${REDIS_PATH_5}/conf/redis-${REDIS_PORT_5}.conf:/usr/local/etc/redis/redis.conf
+      - ${REDIS_PATH_5}/data:/data
+      - ${REDIS_PATH_5}/logs:/logs
+    ports:
+      - ${REDIS_PORT_5}:${REDIS_PORT_5}
+      - 1${REDIS_PORT_5}:1${REDIS_PORT_5}
+    command: redis-server /usr/local/etc/redis/redis.conf
+
+  redis6:
+    image: redis:6.0.8
+    container_name: redis6
+    restart: always
+    environment:
+      - TZ="Asia/Shanghai"
+    volumes:
+      - ${REDIS_PATH_6}/conf/redis-${REDIS_PORT_6}.conf:/usr/local/etc/redis/redis.conf
+      - ${REDIS_PATH_6}/data:/data
+      - ${REDIS_PATH_6}/logs:/logs
+    ports:
+      - ${REDIS_PORT_6}:${REDIS_PORT_6}
+      - 1${REDIS_PORT_6}:1${REDIS_PORT_6}
+    command: redis-server /usr/local/etc/redis/redis.conf
+
+  redis7:
+    image: redis:6.0.8
+    container_name: redis7
+    restart: always
+    environment:
+      - TZ="Asia/Shanghai"
+    volumes:
+      - ${REDIS_PATH_7}/conf/redis-${REDIS_PORT_7}.conf:/usr/local/etc/redis/redis.conf
+      - ${REDIS_PATH_7}/data:/data
+      - ${REDIS_PATH_7}/logs:/logs
+    ports:
+      - ${REDIS_PORT_7}:${REDIS_PORT_7}
+      - 1${REDIS_PORT_7}:1${REDIS_PORT_7}
+    command: redis-server /usr/local/etc/redis/redis.conf
+
+  redis8:
+    image: redis:6.0.8
+    container_name: redis8
+    restart: always
+    environment:
+      - TZ="Asia/Shanghai"
+    volumes:
+      - ${REDIS_PATH_8}/conf/redis-${REDIS_PORT_8}.conf:/usr/local/etc/redis/redis.conf
+      - ${REDIS_PATH_8}/data:/data
+      - ${REDIS_PATH_8}/logs:/logs
+    ports:
+      - ${REDIS_PORT_8}:${REDIS_PORT_8}
+      - 1${REDIS_PORT_8}:1${REDIS_PORT_8}
+    command: redis-server /usr/local/etc/redis/redis.conf
+
+  redis9:
+    image: redis:6.0.8
+    container_name: redis9
+    restart: always
+    environment:
+      - TZ="Asia/Shanghai"
+    volumes:
+      - ${REDIS_PATH_9}/conf/redis-${REDIS_PORT_9}.conf:/usr/local/etc/redis/redis.conf
+      - ${REDIS_PATH_9}/data:/data
+      - ${REDIS_PATH_9}/logs:/logs
+    ports:
+      - ${REDIS_PORT_9}:${REDIS_PORT_9}
+      - 1${REDIS_PORT_9}:1${REDIS_PORT_9}
+    command: redis-server /usr/local/etc/redis/redis.conf
+
+  redis10:
+    image: redis:6.0.8
+    container_name: redis10
+    restart: always
+    environment:
+      - TZ="Asia/Shanghai"
+    volumes:
+      - ${REDIS_PATH_10}/conf/redis-${REDIS_PORT_10}.conf:/usr/local/etc/redis/redis.conf
+      - ${REDIS_PATH_10}/data:/data
+      - ${REDIS_PATH_10}/logs:/logs
+    ports:
+      - ${REDIS_PORT_10}:${REDIS_PORT_10}
+      - 1${REDIS_PORT_10}:1${REDIS_PORT_10}
+    command: redis-server /usr/local/etc/redis/redis.conf
+
+  redis11:
+    image: redis:6.0.8
+    container_name: redis11
+    restart: always
+    environment:
+      - TZ="Asia/Shanghai"
+    volumes:
+      - ${REDIS_PATH_11}/conf/redis-${REDIS_PORT_11}.conf:/usr/local/etc/redis/redis.conf
+      - ${REDIS_PATH_11}/data:/data
+      - ${REDIS_PATH_11}/logs:/logs
+    ports:
+      - ${REDIS_PORT_11}:${REDIS_PORT_11}
+      - 1${REDIS_PORT_11}:1${REDIS_PORT_11}
+    command: redis-server /usr/local/etc/redis/redis.conf
+
+  redis12:
+    image: redis:6.0.8
+    container_name: redis12
+    restart: always
+    environment:
+      - TZ="Asia/Shanghai"
+    volumes:
+      - ${REDIS_PATH_12}/conf/redis-${REDIS_PORT_12}.conf:/usr/local/etc/redis/redis.conf
+      - ${REDIS_PATH_12}/data:/data
+      - ${REDIS_PATH_12}/logs:/logs
+    ports:
+      - ${REDIS_PORT_12}:${REDIS_PORT_12}
+      - 1${REDIS_PORT_12}:1${REDIS_PORT_12}
+    command: redis-server /usr/local/etc/redis/redis.conf
+

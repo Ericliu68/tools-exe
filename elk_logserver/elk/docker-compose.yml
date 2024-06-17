@@ -1,0 +1,127 @@
+version: '3'
+services:
+
+ elasticsearch:
+   image: elasticsearch:8.1.2
+   container_name: elasticsearch
+   volumes:
+     - ${ES_PATH}/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+     - ${ES_PATH}/config/kibana_reset.sh:/usr/share/elasticsearch/config/kibana_reset.sh
+     - ${ES_PATH}/config/kibana_reset_main.sh:/usr/share/elasticsearch/config/kibana_reset_main.sh
+     - ${ES_PATH}/data:/usr/share/elasticsearch/data
+     - ${ES_PATH}/plugins:/usr/share/elasticsearch/plugins
+     - ${ES_PATH}/logs:/usr/share/elasticsearch/logs
+     - ${ES_PATH}/Shanghai:/etc/localtime
+   environment:
+     - discovery.type=single-node
+     - ES_JAVA_OPTS=${ES_JAVA_OPTS}
+     - ELASTIC_PASSWORD=${ES_PASSWORD}
+     - KIBANA_CONNECT_PASSWORD=${KIBANA_PASSWORD}
+   ports:
+     - "${ES_PORT_1}:9200"
+     - "${ES_PORT_2}:9300"
+   healthcheck:
+     interval: 50s
+     retries: 5
+     test: bash -c 'sh ./config/kibana_reset_main.sh'
+
+ kibana:
+   image: kibana:8.1.2
+   container_name: kibana
+   ports:
+     - "${KIBANA_PORT}:5601"
+   depends_on:
+     - elasticsearch
+   volumes:
+     - type: bind
+       source: ${KIBANA_PATH}/config/kibana.yml
+       target: /usr/share/kibana/config/kibana.yml
+       read_only: true
+#      - /data/docker/kibana/config/kibana.yml:/usr/share/kibana/config/kibana.yml
+     - ${KIBANA_PATH}/Shanghai:/etc/localtime
+   environment:
+     - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+     - ELASTIC_PASSWORD=${ES_PASSWORD}
+     - KIBANA_PORT=${KIBANA_PORT}
+
+ metricbeat:
+    image: docker.elastic.co/beats/metricbeat:8.1.2
+    container_name: metricbeat
+    depends_on:
+      - elasticsearch
+      - kibana
+      - logstash
+    volumes:
+      - type: bind
+        source: /proc
+        target: /hostfs/proc
+        read_only: true
+      - type: bind
+        source: /sys/fs/cgroup
+        target: /hostfs/sys/fs/cgroup
+        read_only: true
+      - type: bind
+        source: /
+        target: /hostfs
+        read_only: true
+      - ${METRICBEAT_PATH}/metricbeat.yml:/usr/share/metricbeat/metricbeat.yml:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ${METRICBEAT_PATH}/Shanghai:/etc/localtime
+    network_mode: host
+    environment:
+      - ES_PASSWORD=${ES_PASSWORD}
+      - ES_PORT=${ES_PORT_1}
+      - KIBANA_PORT=${KIBANA_PORT}
+      - LOGSTASH_BEAT_PORT=$LOGSTASH_BEAT_PORT
+    command: -system.hostfs=/hostfs -e
+    user: "root"
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
+
+ logstash:
+    image: docker.elastic.co/logstash/logstash:8.1.2
+    container_name: logstash
+    depends_on:
+      - elasticsearch
+      - kibana
+    volumes:
+      - ${LOGSTASH_LOG_PATH}:/app/work
+      - ${LOGSTASH_PATH}/config/jvm.options:/usr/share/logstash/config/jvm.options
+      - ${LOGSTASH_PATH}/config/logstash.conf:/usr/share/logstash/config/logstash.conf
+      - ${LOGSTASH_PATH}/config/logstash.yml:/usr/share/logstash/config/logstash.yml
+      - ${LOGSTASH_PATH}/config/pipelines.yml:/usr/share/logstash/config/pipelines.yml
+      - ${LOGSTASH_PATH}/config/demo.json:/usr/share/logstash/config/demo.json
+      - ${LOGSTASH_PATH}/Shanghai:/etc/localtime
+    environment:
+      - ES_PASSWORD=${ES_PASSWORD}
+      - LOGSTASH_LOG_PATH=${LOGSTASH_LOG_PATH}
+      - REAL_TIME_LOGSTASH=${REAL_TIME_LOGSTASH}
+      - REAL_TIME_LOGSTASH_PASSWORD=${REAL_TIME_LOGSTASH_PASSWORD}
+      - FILE_LOGSRASH=${FILE_LOGSRASH}
+      - FILE_LOGSRASH_PASSWORD=${FILE_LOGSRASH_PASSWORD}
+
+    restart: on-failure:5
+    ports:
+      - "${LOGSTASH_HTTP_PORT}:8888"
+      - "${LOGSTASH_BEAT_PORT}:5086"
+      - "${LOGSTASH_HTTP_FILE_PORT}:8889"
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 1024M
+
+ grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    depends_on:
+      - elasticsearch
+    volumes:
+      - ${GRAFANA_PATH}/config/grafana.ini:/etc/grafana/grafana.ini
+    environment:
+      - GRAFANA_HTTP_PORT=${GRAFANA_HTTP_PORT}
+    ports:
+      - "${GRAFANA_HTTP_PORT}:3000"

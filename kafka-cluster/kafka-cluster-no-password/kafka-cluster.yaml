@@ -1,0 +1,114 @@
+version: '3.8'
+services:
+  zookeeper1:
+    image: zookeeper:3.8.0
+    container_name: zookeeper1
+    volumes:
+      - ${ZOOKEEPER_PATH_1}/data:/data
+      - ${ZOOKEEPER_PATH_1}/datalog:/datalog
+      - ${ZOOKEEPER_PATH_1}/logs:/logs
+    ports:
+      - ${ZOOKEEPER_PORT_1}:2181
+    environment:
+      ZOO_MY_ID: 1
+      ZOO_SERVERS: server.1=zookeeper1:2888:3888;2181 server.2=zookeeper2:2888:3888;2181 server.3=zookeeper3:2888:3888;2181
+    restart: always
+    networks:
+      - zookeeper_kafka
+  zookeeper2:
+    image: zookeeper:3.8.0
+    container_name: zookeeper2
+    volumes:
+      - ${ZOOKEEPER_PATH_2}/data:/data
+      - ${ZOOKEEPER_PATH_2}/datalog:/datalog
+      - ${ZOOKEEPER_PATH_2}/logs:/logs
+    ports:
+      - ${ZOOKEEPER_PORT_2}:2181
+    environment:
+      ZOO_MY_ID: 2
+      ZOO_SERVERS: server.1=zookeeper1:2888:3888;2181 server.2=zookeeper2:2888:3888;2181 server.3=zookeeper3:2888:3888;2181
+    restart: always
+    networks:
+      - zookeeper_kafka
+  zookeeper3:
+    image: zookeeper:3.8.0
+    container_name: zookeeper3
+    volumes:
+      - ${ZOOKEEPER_PATH_3}/data:/data
+      - ${ZOOKEEPER_PATH_3}/datalog:/datalog
+      - ${ZOOKEEPER_PATH_3}/logs:/logs
+    ports:
+      - ${ZOOKEEPER_PORT_3}:2181
+    environment:
+      ZOO_MY_ID: 3
+      ZOO_SERVERS: server.1=zookeeper1:2888:3888;2181 server.2=zookeeper2:2888:3888;2181 server.3=zookeeper3:2888:3888;2181
+    restart: always
+    networks:
+      - zookeeper_kafka
+  kafka1:
+    image: wurstmeister/kafka
+    depends_on:
+      - zookeeper1
+      - zookeeper2
+      - zookeeper3
+    container_name: kafka1
+    ports:
+      - ${KAFKA_PORT_1}:${KAFKA_PORT_1}
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper1:2181,zookeeper2:2181,zookeeper3:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka1:${KAFKA_PORT_1}
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:${KAFKA_PORT_1}
+      KAFKA_LOG_DIRS: /data/kafka-data
+      KAFKA_LOG_RETENTION_HOURS: 24
+    volumes:
+      - ${KAFKA_PATH_1}/data:/data/kafka-data
+    restart: unless-stopped
+    networks:
+      - zookeeper_kafka
+  kafka2:
+    image: wurstmeister/kafka
+    depends_on:
+      - zookeeper1
+      - zookeeper2
+      - zookeeper3
+    container_name: kafka2
+    ports:
+      - ${KAFKA_PORT_2}:${KAFKA_PORT_2}
+    environment:
+      KAFKA_BROKER_ID: 2
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper1:2181,zookeeper2:2181,zookeeper3:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka2:${KAFKA_PORT_2}
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:${KAFKA_PORT_2}
+      KAFKA_LOG_DIRS: /data/kafka-data
+      KAFKA_LOG_RETENTION_HOURS: 24
+    volumes:
+      - ${KAFKA_PATH_2}/data:/data/kafka-data
+    restart: unless-stopped
+    networks:
+      - zookeeper_kafka
+  kafka3:
+    image: wurstmeister/kafka
+    depends_on:
+      - zookeeper1
+      - zookeeper2
+      - zookeeper3
+    container_name: kafka3
+    ports:
+      - ${KAFKA_PORT_3}:${KAFKA_PORT_3}
+    environment:
+      KAFKA_BROKER_ID: 3
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper1:2181,zookeeper2:2181,zookeeper3:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka3:${KAFKA_PORT_3}
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:${KAFKA_PORT_3}
+      KAFKA_LOG_DIRS: /data/kafka-data
+      KAFKA_LOG_RETENTION_HOURS: 24
+    volumes:
+      - ${KAFKA_PATH_3}/data:/data/kafka-data
+    restart: unless-stopped
+    networks:
+      - zookeeper_kafka
+
+networks:
+  zookeeper_kafka:
+    driver: bridge
